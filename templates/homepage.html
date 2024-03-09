@@ -1,0 +1,364 @@
+{% extends "sidebar.html" %}
+{% block content %}
+<html>
+    <head>
+        <title>Homepage</title>
+    </head>
+
+    <style>
+        body{
+            font-family: "Arial", sans-serif;
+        }
+
+        .addPatientButton{
+            color: white;
+            text-decoration: none;
+        }
+
+        .addPatientButton:hover{
+            color: white;
+        }
+
+        .add-btn{
+            background-color: #1277d6 !important;
+            border: #1277d6 !important;
+            color: white;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .cancel-btn{
+            background-color: #dbecfc !important;
+            border: #dbecfc !important;
+            color: #0f69bc!important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .save-btn{
+            background-color: #1277d6 !important;
+            border: #1277d6 !important;
+            color: white;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .edit-icon-btn{
+            display: inline-block;
+            color: #0f69bc !important;
+            text-decoration: none;
+            background-color: #ffffff !important;
+            border: #ffffff !important;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 50%; 
+            width: 40px; 
+            height: 40px;
+            padding: 0; 
+        }
+
+        .delete-icon-btn{
+            display: inline-block;
+            color: #ffffff !important;
+            background-color: #c90303 !important;
+            border: #c90303 !important;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            margin-left: 10px;
+        }
+
+        .add-allergy-btn{
+            background-color: #008d6c !important;
+            border: #008d6c !important;
+            color: white;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .delete-cancel-btn{
+            background-color: #eaeaea !important;
+            border: #dcdcdc !important;
+            color: #686868 !important;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .delete-btn{
+            background-color: #c90303 !important;
+            border: #c90303 !important;
+            color: white;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+
+
+    </style>
+    <body>
+        <br>
+        <h4><center><b>Manage Patient</b></center></h4>
+        <br><br>
+
+        <!--Prompt alert message-->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row justify-content-end">
+            <div class="col-auto">
+                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addPatientModal" onclick="resetPatientForm()">
+                    <a href="#" class="addPatientButton">+ Add Patient</a>
+                </button>
+            </div>
+        </div>
+
+        <!--Add Patient Modal-->
+        <div class="modal fade" id="addPatientModal" tabindex="-1" aria-label="addPatientModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addPatientModalLabel"><b>Add Patient</b></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="patientForm" method="POST" action="{% url 'addPatient' %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <h6><b>Personal Information</b></h6>
+                            <div class="form-floating mb-3">
+                                <input type="name" class="form-control" id="fullname" name="fullname" placeholder="name" required>
+                                <label for="fullname">Name</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="nric_passport" name="nric_passport" placeholder="nric_passport" required>
+                                <label for="nric_passport">NRIC / Passport</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="date" class="form-control" id="dobInput" name="dobInput" placeholder="date" required>
+                                <label for="dobInput">Date of Birth</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="ageInput" name="ageInput" placeholder="age" readonly>
+                                <label for="ageInput">Age</label>
+                            </div>
+                            <br>
+                            <h6><b>Patient Allergies</b></h6>
+                            <div id="allergy-container">
+                                <div class="form-floating mb-3">
+                                    <select id="allergies" name="allergies" class="form-control">
+                                        <option value="" selected disabled >Select allergies</option>
+                                        {% for allergy in allergies %}
+                                            <option value="{{ allergy.id }}">{{ allergy.property_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label for="allergies">Allergy</label>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary add-allergy-btn" onclick="addAllergyField()">Add</button>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary cancel-btn" data-bs-dismiss="modal"><b>CANCEL</b></button>
+                            <button type="submit" class="btn btn-primary add-btn"><b>ADD</b></button>
+                        </div>
+                   </form>
+                </div>
+            </div>
+        </div>
+
+        <br><br>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>NRIC / Passport</th>
+                    <th>DOB</th>
+                    <th>Age</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for patient in patients %}
+                <tr>
+                    <td>{{ patient.fullname }}</td>
+                    <td>{{ patient.nric_passport }}</td>
+                    <td>{{ patient.dob|date:"d-m-Y" }}</td>
+                    <td>{{ patient.age }}</td>
+                    <td class="action-buttons">
+                        <button type="button" class="btn btn-primary edit-icon-btn" data-bs-toggle="modal" data-bs-target="#editPatientModal{{ patient.id }}" title="Edit Patient"><i class="far fa-edit"></i></button>
+                        <button type="button" class="btn btn-primary delete-icon-btn" data-bs-toggle="modal" data-bs-target="#deletePatientModal{{ patient.id }}" title="Delete Patient"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!--Edit Patient Detail Modal-->
+        {% for patient in patients %}
+        <div class="modal fade" id="editPatientModal{{ patient.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel"><b>Manage Patient Details</b></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="patientForm" method="POST" action="{% url 'editPatient' pk=patient.id %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <h6><b>Personal Information</b></h6>
+                            <div class="form-floating mb-3">
+                                <input type="name" class="form-control" id="fullname" name="fullname" placeholder="name" value="{{ patient.fullname }}" required>
+                                <label for="fullname">Name</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="nric_passport" name="nric_passport" placeholder="nric_passport" value="{{ patient.nric_passport }}" required>
+                                <label for="nric_passport">NRIC / Passport</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="date" class="form-control" id="dobInput" name="dobInput" placeholder="date" value="{{ patient.dob|date:'Y-m-d' }}" required>
+                                <label for="dobInput">Date of Birth</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="ageInput" name="ageInput" placeholder="age" value="{{ patient.age }}" readonly>
+                                <label for="ageInput">Age</label>
+                            </div>
+
+                            <br>
+                            <h6><b>Patient Allergies</b></h6>
+                            <div id="edit-allergy-container-{{ patient.id }}">
+                                {% for allergy in patient.allergies.all %}
+                                <div class="form-floating mb-3">
+                                    <select id="allergies" name="allergies" class="form-control">
+                                        <option value="" selected disabled>Select allergies</option>
+                                        {% for a in allergies %}
+                                            <option value="{{ a.id }}" {% if a.id == allergy.id %} selected {% endif %}>{{ a.property_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label for="allergies">Allergy</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <button type="button" class="btn btn-primary add-new-allergy-btn" onclick="addNewAllergyField('{{ patient.id }}')">Add New Allergy</button>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary cancel-btn" data-bs-dismiss="modal"><b>CANCEL</b></button>
+                            <button type="submit" class="btn btn-primary save-btn"><b>SAVE</b></a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!--Delete Patient Modal-->
+        {% for patient in patients %}
+        <div class="modal fade" id="deletePatientModal{{ patient.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel"><b>Delete Patient</b></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="patientForm" method="POST" action="{% url 'deletePatient' pk=patient.id %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            Are you sure want to delete patient {{ patient.fullname }}?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary delete-cancel-btn" data-bs-dismiss="modal"><b>CANCEL</b></button>
+                            <button type="submit" class="btn btn-primary delete-btn"><b>DELETE</b></a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </body>
+
+    <script>
+        function calculateAge(dob){
+            const today = new Date();
+            const birthDate = new Date(dob);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())){
+                age --;
+            }
+            return age;
+        }
+
+        document.getElementById("dobInput").addEventListener("change", function(){
+            const dob = this.value;
+            const age = calculateAge(dob);
+            document.getElementById("ageInput").value = age;
+        })
+
+        function resetPatientForm(){
+            document.getElementById("patientForm").reset();
+        }
+
+        // Function to hide the success message after a delay
+        function hideSuccessMessage() {
+            var successMessage = document.querySelector(".alert-success");
+            if (successMessage) {
+                setTimeout(function() {
+                    successMessage.style.display = "none";
+                }, 1500); 
+            }
+        }
+        // Call the hideSuccessMessage function when the page loads
+        window.onload = hideSuccessMessage;
+
+        function addAllergyField(){
+            var container = document.getElementById("allergy-container");
+            var newField = container.firstElementChild.cloneNode(true);
+            container.appendChild(newField);
+        }
+
+        // To add new allergy field in edit modal
+        function addNewAllergyField(patientId){
+            var container = document.getElementById("edit-allergy-container-" + patientId);
+            
+            // Create new div element to contain the allergy field
+            var newField = document.createElement('div');
+            newField.classList.add('form-floating', 'mb-3');
+
+            // Select element to represent the dropdown menu to select allergies
+            var selectElement = document.createElement('select');
+            selectElement.id = 'allergies';
+            selectElement.name = 'allergies';
+            selectElement.classList.add('form-control');
+
+            // To display options in the dropdown menu
+            var defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.selected = true;
+            defaultOption.disabled = true;
+            defaultOption.textContent = 'Select allergies';
+            selectElement.appendChild(defaultOption);
+
+            // Append options for each allergy (dynamically retrived from db)
+            {% for allergy in allergies %}
+            var option = document.createElement('option');
+            option.value = '{{ allergy.id }}';
+            option.textContent = '{{ allergy.property_name }}';
+            selectElement.appendChild(option);
+            {% endfor %}
+
+
+            newField.appendChild(selectElement);
+
+            var labelElement = document.createElement('label');
+            labelElement.htmlFor = 'allergies';
+            labelElement.textContent = 'Allergy';
+
+            newField.appendChild(labelElement);
+
+            // Append the new field to the container
+            container.appendChild(newField);
+        }
+
+
+    </script>
+</html>
+
+{% endblock %}

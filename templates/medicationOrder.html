@@ -1,0 +1,281 @@
+{% extends "sidebar.html" %}
+{% block content %}
+<html>
+    <head>
+        <title>Medication Order</title>
+    </head>
+
+    <style>
+        body{
+            font-family: "Arial", sans-serif;
+        }
+
+        .addOrderButton{
+            color: white;
+            text-decoration: none;
+        }
+
+        .addOrderButton:hover{
+            color: white;
+        }
+
+        .add-btn{
+            background-color: #1277d6 !important;
+            border: #1277d6 !important;
+            color: white;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .cancel-btn{
+            background-color: #dbecfc !important;
+            border: #dbecfc !important;
+            color: #0f69bc!important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .save-btn{
+            background-color: #1277d6 !important;
+            border: #1277d6 !important;
+            color: white;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .edit-icon-btn{
+            display: inline-block;
+            color: #0f69bc !important;
+            text-decoration: none;
+            background-color: #ffffff !important;
+            border: #ffffff !important;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 50%; 
+            width: 40px; 
+            height: 40px;
+            padding: 0; 
+        }
+
+        .delete-icon-btn{
+            display: inline-block;
+            color: #ffffff !important;
+            background-color: #c90303 !important;
+            border: #c90303 !important;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            margin-left: 10px;
+        }
+
+        .add-allergy-btn{
+            background-color: #008d6c !important;
+            border: #008d6c !important;
+            color: white;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .delete-cancel-btn{
+            background-color: #eaeaea !important;
+            border: #dcdcdc !important;
+            color: #686868 !important;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .delete-btn{
+            background-color: #c90303 !important;
+            border: #c90303 !important;
+            color: white;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+
+
+    </style>
+    <body>
+        <br>
+        <h4><center><b>Manage Order</b></center></h4>
+        <br><br>
+
+        <!--Prompt alert message-->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row justify-content-end">
+            <div class="col-auto">
+                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addOrderModal" onclick="resetOrderForm()">
+                    <a href="#" class="addOrderButton">+ Add Order</a>
+                </button>
+            </div>
+        </div>
+
+        <!--Add Order Modal-->
+        <div class="modal fade" id="addOrderModal" tabindex="-1" aria-label="addOrderModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addOrderModalLabel"><b>Add Order</b></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="orderForm" method="POST" action="#">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <h6><b>Order Information</b></h6>
+
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="nric_passport" name="nric_passport" placeholder="nric_passport" required>
+                                <label for="nric_passport">NRIC / Passport</label>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="patient_name" name="patient_name" placeholder="Patient Name" readonly>
+                                <label for="patient_name">Patient Name</label>
+                            </div>
+
+    
+                            <div id="medication-container">
+                                <div class="form-floating mb-3">
+                                    <select id="medication" name="medication" class="form-control">
+                                        <option value="" selected disabled >Select medication</option>
+                                        {% for medication in medications %}
+                                            <option value="{{ medication.id }}">{{ medication.medication_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label for="medication">Medication</label>
+                                </div>
+                                <div id="warning-message" style="display: none; color: red;"></div>
+                            </div>
+                            <button type="button" class="btn btn-primary add-medication-btn" onclick="addMedicationField()">Add</button>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary cancel-btn" data-bs-dismiss="modal"><b>CANCEL</b></button>
+                            <button type="submit" class="btn btn-primary add-btn"><b>ADD</b></button>
+                        </div>
+                   </form>
+                </div>
+            </div>
+        </div>
+
+        <br><br>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>NRIC / Passport</th>
+                    <th>DOB</th>
+                    <th>Age</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for patient in patients %}
+                <tr>
+                    <td>{{ patient.fullname }}</td>
+                    <td>{{ patient.nric_passport }}</td>
+                    <td>{{ patient.dob|date:"d-m-Y" }}</td>
+                    <td>{{ patient.age }}</td>
+                    <td class="action-buttons">
+                        <button type="button" class="btn btn-primary edit-icon-btn" data-bs-toggle="modal" data-bs-target="#editPatientModal{{ patient.id }}" title="Edit Patient"><i class="far fa-edit"></i></button>
+                        <button type="button" class="btn btn-primary delete-icon-btn" data-bs-toggle="modal" data-bs-target="#deletePatientModal{{ patient.id }}" title="Delete Patient"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        
+    <script>
+
+        function resetOrderForm(){
+            document.getElementById("orderForm").reset();
+        }
+
+        // Populate patient name based on IC number entered
+        $(document).ready(function() {
+            $('#nric_passport').on('input', function() {
+                var nricPassport = $(this).val();
+                $.ajax({
+                    url: '/fetch_patient_name/', // URL to fetch patient name
+                    method: 'GET',
+                    data: {'nric_passport': nricPassport},
+                    success: function(data) {
+                        $('#patient_name').val(data.patient_name);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
+        });
+
+        // To check allergy of patient with the properties of medication
+        $(document).ready(function(){
+            $('#warning-message').hide();
+
+            $('#medication').change(function(){
+                var selectedMedicationId = $(this).val();
+                var nric_passport = $('#nric_passport').val();
+                $.ajax({
+                    url:'/check_allergy/', 
+                    type: 'POST',
+                    data:{
+                        'medication_id': selectedMedicationId,
+                        'nric_passport': nric_passport,
+                    },
+                    success: function(response){
+                        if(response.has_allergy){
+                            displayWarningMessage('Warning: Patient has allergies for this medication!');
+                        } else{
+                            hideWarningMessage();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        displayErrorMessage('Error: Unable to check allergies. Please try again later');
+                        console.error('Error:', error);
+                    }
+                });
+            });
+
+            function displayWarningMessage(message){
+                var warningMessageDiv = $('#warning-message');
+                warningMessageDiv.text(message);
+                warningMessageDiv.show();
+            }
+
+            function hideWarningMessage(){
+                var warningMessageDiv = $('#warning-message');
+                warningMessageDiv.hide();
+            }
+
+            function displayErrorMessage(message){
+                var warningMessageDiv = $('#warning-message');
+                warningMessageDiv.text(message);
+                warningMessageDiv.show();
+            }
+        });
+
+        // Function to hide the success message after a delay
+        function hideSuccessMessage() {
+            var successMessage = document.querySelector(".alert-success");
+            if (successMessage) {
+                setTimeout(function() {
+                    successMessage.style.display = "none";
+                }, 1500); 
+            }
+        }
+        // Call the hideSuccessMessage function when the page loads
+        window.onload = hideSuccessMessage;
+
+        function addMedicationField(){
+            var container = document.getElementById("medication-container");
+            var newField = container.firstElementChild.cloneNode(true);
+            container.appendChild(newField);
+        }
+
+    </script>
+</html>
+
+{% endblock %}
