@@ -127,4 +127,4 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_TRUSTED_ORIGINS = ['https://afternoon-everglades-85816-99731144b90f.herokuapp.com']
+CSRF_TRUSTED_ORIGINS = ["https://afternoon-everglades-85816-99731144b90f.herokuapp.com"]
