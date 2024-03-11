@@ -73,6 +73,14 @@
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
         }
 
+        .delete-allergy-btn{
+            background-color: transparent;
+            border: none;
+            color: #c90303;
+            cursor: pointer;
+            padding-left: 5px;
+        }
+
         .delete-cancel-btn{
             background-color: #eaeaea !important;
             border: #dcdcdc !important;
@@ -87,6 +95,7 @@
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
         }
 
+   
 
 
     </style>
@@ -132,6 +141,7 @@
                                 <input type="text" class="form-control" id="nric_passport" name="nric_passport" placeholder="nric_passport" required>
                                 <label for="nric_passport">NRIC / Passport</label>
                             </div>
+                            <div id="nric_passport-error" class="invalid-feedback"></div>
                             <div class="form-floating mb-3">
                                 <input type="date" class="form-control" id="dobInput" name="dobInput" placeholder="date" required>
                                 <label for="dobInput">Date of Birth</label>
@@ -190,6 +200,41 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        <!--Boostrap Paginator-->
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-end">
+                {% if patients.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ patients.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+
+                {% for i in page_range %}
+                    {% if i == patients.number %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ i }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if patients.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ patients.next_page_number }}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ patients.paginator.num_pages }}">Last</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
 
         <!--Edit Patient Detail Modal-->
         {% for patient in patients %}
@@ -311,6 +356,16 @@
         function addAllergyField(){
             var container = document.getElementById("allergy-container");
             var newField = container.firstElementChild.cloneNode(true);
+
+            var deleteButton = document.createElement("span");
+            deleteButton.className = "delete-allergy-btn";
+            deleteButton.type = "button";
+            deleteButton.innerHTML = '<i class = "fas fa-times"></i>';
+            deleteButton.style.cursor = "pointer";
+            deleteButton.onclick = function(){
+                container.removeChild(newField);
+            };
+            newField.appendChild(deleteButton);
             container.appendChild(newField);
         }
 
@@ -353,8 +408,44 @@
 
             newField.appendChild(labelElement);
 
+            var deleteButton = document.createElement("span");
+            deleteButton.className = "delete-allergy-btn";
+            deleteButton.type = "button";
+            deleteButton.innerHTML = '<i class = "fas fa-times"></i>';
+            deleteButton.style.cursor = "pointer";
+            deleteButton.onclick = function(){
+                container.removeChild(newField);
+            };
+            newField.appendChild(deleteButton);
+
             // Append the new field to the container
             container.appendChild(newField);
+        }
+
+        // check duplication of nric_passport
+        document.getElementById("nric_passport").addEventListener("input", function(){
+            var nric_passport = this.value;
+            checkDuplicateNRIC(nric_passport);
+        });
+
+        function checkDuplicateNRIC(nric_passport){
+            $.ajax({
+                url:"{% url 'check_duplicate_nric' %}",
+                type: "POST",
+                data:{
+                    'nric_passport': nric_passport,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response){
+                    if(response.exists){
+                        $('#nric_passport').addClass('is-invalid');
+                        $('#nric_passport-error').html('NRIC/Passport already exists.');
+                    } else{
+                        $('#nric_passport').removeClass('is-invalid');
+                        $('#nric_passport-error').html('');
+                    }
+                }
+            });
         }
 
 

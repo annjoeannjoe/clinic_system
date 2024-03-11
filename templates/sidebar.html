@@ -113,7 +113,37 @@
             border-radius: 4px;
         }
 
+        .order-page{
+            text-decoration: none;
+            font-size: 20px;
+            color: black;
+            display: block;
+            border: 1px solid #c8e4ff;
+            background-color: #c8e4ff;
+            width: 90%;
+            text-align: left;
+            cursor: pointer;
+            outline: none;
+            margin: 0 auto;
+            border-radius: 4px;
+        }
+
         .deleted-records-page{
+            text-decoration: none;
+            font-size: 20px;
+            color: black;
+            display: block;
+            border: 1px solid #c8e4ff;
+            background-color: #c8e4ff;
+            width: 90%;
+            text-align: left;
+            cursor: pointer;
+            outline: none;
+            margin: 0 auto;
+            border-radius: 4px;
+        }
+
+        .manage-password-page{
             text-decoration: none;
             font-size: 20px;
             color: black;
@@ -156,15 +186,33 @@
 
             <!--Patient-->
             <button class="patient-page">
-                <!--<i class="fas fa-user" style="padding-right: 20px;"></i>-->
-                <a href="{% url 'homepage' %}" style="font-size: 18px;">Patient</a>
+                <a href="{% url 'homepage' %}" style="font-size: 16px;">
+                    <i class="fas fa-users" style="padding-right: 20px;"></i> Patient
+                </a>
             </button>
+            <div style="margin: 8px;"></div>
 
+            <!--Order-->
+            <button class="order-page">
+                <a href="{% url 'medicationOrder' %}" style="font-size: 16px;">
+                    <i class="fas fa-file-medical" style="padding-right: 20px;"></i> Medication Order
+                </a>
+            </button>
             <div style="margin: 8px;"></div>
 
             <!--Deleted Records-->
             <button class="deleted-records-page">
-                <a href="{% url 'deletedRecordsArchive' %}" style="font-size: 18px;">Deleted Records Archive</a>
+                <a href="{% url 'deletedRecordsArchive' %}" style="font-size: 16px;">
+                    <i class="fas fa-archive" style="padding-right: 20px;"></i> Archived Records
+                </a>
+            </button>
+            <div style="margin: 8px;"></div>
+
+            <!--Manage Password-->
+            <button class="manage-password-page">
+                <a href="{% url 'changePassword' %}" style="font-size: 16px;">
+                <i class="fas fa-key" style="padding-right: 20px;"></i>Manage Password
+            </a>
             </button>
         </div>
 

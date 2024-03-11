@@ -1,0 +1,227 @@
+
+{% extends "sidebar.html" %}
+{% block content %}
+<html>
+    <head>
+        <title>Medication Order</title>
+    </head>
+
+    <style>
+        body{
+            font-family: "Arial", sans-serif;
+        }
+
+        .addOrderButton{
+            color: white;
+            text-decoration: none;
+        }
+
+        .addOrderButton:hover{
+            color: white;
+        }
+
+        .add-medication-btn{
+            background-color: #008d6c !important;
+            border: #008d6c !important;
+            color: white;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+            margin-top: 10px;
+        }
+
+        .submit-btn{
+            background-color: #1277d6 !important;
+            border: #1277d6 !important;
+            color: white;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .add-allergy-btn{
+            background-color: #008d6c !important;
+            border: #008d6c !important;
+            color: white;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .delete-medication-btn{
+            background-color: transparent;
+            border: none;
+            color: #c90303;
+            cursor: pointer;
+            padding-left: 15px;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+
+        .right-align{
+            float: right;
+        }
+
+
+
+
+    </style>
+    <body>
+        <br>
+        <h4><center><b>Order Page</b></center></h4>
+        <br><br>
+
+        <!--Prompt alert message-->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form id="orderForm" method="POST" action="{% url 'addOrder' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <h6><b>Order Information</b></h6>
+
+                    <!--<div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="order_number" name="order_number" placeholder="order_number" value="{{ next_order_number }}" required>
+                        <label for="order_number">Order Number</label>
+                    </div>-->
+
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="nric_passport" name="nric_passport" placeholder="nric_passport" required>
+                        <label for="nric_passport">NRIC / Passport</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="patient_name" name="patient_name" placeholder="Patient Name" disabled readonly>
+                        <label for="patient_name">Patient Name</label>
+                    </div>
+
+                    <div id="medication-container">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <select id="medication" name="medication" class="form-control" onchange="checkAllergy()">
+                                        <option value="" selected disabled>Select medication</option>
+                                        {% for medication in medications %}
+                                        <option value="{{ medication.id }}" data-properties="{% for prop in medication.properties.all %}{{ prop.property_name }}{% if not forloop.last %},{% endif %}{% endfor %}">{{ medication.medication_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label for="medication">Medication</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control quantity" id="quantity" name="quantity" placeholder="Quantity" min="1" >
+                                    <label>Quantity</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="warning-message" style="display: none; color: red;"></div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary add-medication-btn" onclick="addMedicationField()">Add</button>
+                </div>
+                <br><br>
+                <button type="submit" class="btn btn-primary submit-btn right-align" id="submit-btn" ><b>SUBMIT</b></button>
+                
+            </form>
+    </body>
+
+
+        
+    <script>
+
+        function resetOrderForm(){
+            document.getElementById("orderForm").reset();
+        }
+
+        // Populate patient name based on IC number entered
+        $(document).ready(function() {
+            $('#nric_passport').on('input', function() {
+                var nricPassport = $(this).val();
+                $.ajax({
+                    url: '/fetch_patient_name/', // URL to fetch patient name
+                    method: 'GET',
+                    data: {'nric_passport': nricPassport},
+                    success: function(data) {
+                        $('#patient_name').val(data.patient_name);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
+        });
+
+        // Function to hide the success message after a delay
+        function hideSuccessMessage() {
+            var successMessage = document.querySelector(".alert-success");
+            if (successMessage) {
+                setTimeout(function() {
+                    successMessage.style.display = "none";
+                }, 1500); 
+            }
+        }
+        // Call the hideSuccessMessage function when the page loads
+        window.onload = hideSuccessMessage;
+
+        function addMedicationField(){
+            var container = document.getElementById("medication-container");
+            var newField = container.firstElementChild.cloneNode(true);
+            
+            var deleteButton = document.createElement("span")
+            deleteButton.className ="delete-medication-btn";
+            deleteButton.type = "button";
+            deleteButton.innerHTML = '<i class = "fas fa-times"></i>';
+            deleteButton.style.cursor = "pointer";
+            deleteButton.onclick = function(){
+                container.removeChild(newField);
+            };
+            newField.appendChild(deleteButton);
+            container.appendChild(newField);
+            
+            newField.querySelector('.quantity').value = '';
+        }
+
+        function checkAllergy() {
+        var selectedMedication = document.getElementById("medication");
+        var medicationId = selectedMedication.value;
+        var nricPassport = document.getElementById("nric_passport").value;
+
+        console.log("Medication ID:", medicationId);
+        console.log("NRIC / Passport:", nricPassport);
+
+        // Make AJAX request to check allergy
+        $.ajax({
+            type: 'POST',
+            url: '{% url "check_allergy" %}',
+            data: {
+                'medication': medicationId,
+                'nric_passport': nricPassport,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+    console.log("Response:", response);
+    if (response.allergic === false) {
+        // Patient is not allergic, hide the warning message
+        document.getElementById("warning-message").style.display = "none";
+    } else {
+        // Patient is allergic, display the warning message
+        document.getElementById("warning-message").innerHTML = response.message; // Assuming the response contains a message field
+        document.getElementById("warning-message").style.display = "block";
+    }
+},
+            error: function(xhr, status, error) {
+                console.error("AJAX Error:", error);
+            }
+        });
+    }
+
+    window.onload = function() {
+        var orderNumberInput = document.getElementById("order_number");
+        var nextOrderNumber = "{{ next_order_number }}"; // Fetch the value from the Django template variable
+        orderNumberInput.value = nextOrderNumber;
+    };
+
+    </script>
+</html>
+
+{% endblock %}

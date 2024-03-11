@@ -26,7 +26,10 @@ SECRET_KEY = 'django-insecure-fjz3y!x!(#$+j_y9lwov&(rmwj+%vg0^)=d8g0=67#mjeqzsfs
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'clinicsystem-project-7b1efc80f077.herokuapp.com'
+]
 
 
 # Application definition
@@ -123,3 +126,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CSRF_TRUSTED_ORIGINS = ['https://clinicsystem-project-7b1efc80f077.herokuapp.com/']

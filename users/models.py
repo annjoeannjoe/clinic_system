@@ -30,10 +30,17 @@ class Medication(models.Model):
         return self.medication_name
     
 class MedicationOrder(models.Model):
-    order_number = models.CharField(max_length=20, unique = True)
+    STATUS_CHOICES =(
+        ('Pending', 'Pending'),
+        ('Fulfilled', 'Fulfilled'),
+    )
+    order_number = models.CharField(max_length=20, blank=True, null=True)
+    order_status = models.CharField(max_length = 10, choices = STATUS_CHOICES, default='Pending')
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    medications = models.ManyToManyField(Medication, through='OrderItem')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(MedicationOrder, on_delete=models.CASCADE)
     medication = models.ForeignKey(Medication, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
-    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-

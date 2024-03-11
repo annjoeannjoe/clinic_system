@@ -40,7 +40,7 @@
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
         }
 
-        .edit-icon-btn{
+        .view-icon-btn{
             display: inline-block;
             color: #0f69bc !important;
             text-decoration: none;
@@ -53,11 +53,12 @@
             padding: 0; 
         }
 
-        .delete-icon-btn{
+        .complete-order-btn{
             display: inline-block;
             color: #ffffff !important;
-            background-color: #c90303 !important;
-            border: #c90303 !important;
+            text-decoration: none;
+            background-color: #397f44!important;
+            border: #397f44 !important;
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
             border-radius: 50%;
             width: 40px;
@@ -65,7 +66,6 @@
             padding: 0;
             margin-left: 10px;
         }
-
         .add-allergy-btn{
             background-color: #008d6c !important;
             border: #008d6c !important;
@@ -87,6 +87,12 @@
             box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
         }
 
+        .view-close-btn{
+            background-color: #1277d6 !important;
+            border: #1277d6 !important;
+            color: white;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
 
 
     </style>
@@ -106,56 +112,9 @@
 
         <div class="row justify-content-end">
             <div class="col-auto">
-                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addOrderModal" onclick="resetOrderForm()">
-                    <a href="#" class="addOrderButton">+ Add Order</a>
+                <button type="button" class="btn btn-primary mb-3">
+                    <a href="{% url 'addOrder' %}" class="addOrderButton">+ Add Order</a>
                 </button>
-            </div>
-        </div>
-
-        <!--Add Order Modal-->
-        <div class="modal fade" id="addOrderModal" tabindex="-1" aria-label="addOrderModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addOrderModalLabel"><b>Add Order</b></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form id="orderForm" method="POST" action="#">
-                        {% csrf_token %}
-                        <div class="modal-body">
-                            <h6><b>Order Information</b></h6>
-
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="nric_passport" name="nric_passport" placeholder="nric_passport" required>
-                                <label for="nric_passport">NRIC / Passport</label>
-                            </div>
-
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="patient_name" name="patient_name" placeholder="Patient Name" readonly>
-                                <label for="patient_name">Patient Name</label>
-                            </div>
-
-    
-                            <div id="medication-container">
-                                <div class="form-floating mb-3">
-                                    <select id="medication" name="medication" class="form-control">
-                                        <option value="" selected disabled >Select medication</option>
-                                        {% for medication in medications %}
-                                            <option value="{{ medication.id }}">{{ medication.medication_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <label for="medication">Medication</label>
-                                </div>
-                                <div id="warning-message" style="display: none; color: red;"></div>
-                            </div>
-                            <button type="button" class="btn btn-primary add-medication-btn" onclick="addMedicationField()">Add</button>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary cancel-btn" data-bs-dismiss="modal"><b>CANCEL</b></button>
-                            <button type="submit" class="btn btn-primary add-btn"><b>ADD</b></button>
-                        </div>
-                   </form>
-                </div>
             </div>
         </div>
 
@@ -163,28 +122,193 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Order No</th>
+                    <th>Order Number</th>
+                    <th>Name</th>
                     <th>NRIC / Passport</th>
-                    <th>DOB</th>
                     <th>Age</th>
+                    <th>Order Status</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                {% for patient in patients %}
+                {% for medOrder in medication_orders %}
                 <tr>
-                    <td>{{ patient.fullname }}</td>
-                    <td>{{ patient.nric_passport }}</td>
-                    <td>{{ patient.dob|date:"d-m-Y" }}</td>
-                    <td>{{ patient.age }}</td>
+                    <td>{{ medOrder.order_number }}</td>
+                    <td>{{ medOrder.patient.fullname }}</td>
+                    <td>{{ medOrder.patient.nric_passport }}</td>
+                    <td>{{ medOrder.patient.age }}</td>
+                    <td>
+
+                        {% if medOrder.order_status == 'Pending' %}
+                            <span class="badge rounded-pill bg-warning">Pending</span>
+                        {% elif medOrder.order_status == "Fulfilled" %}
+                            <span class="badge rounded-pill bg-success">Fulfilled</span>
+                        {% endif %}
+                    </td>
                     <td class="action-buttons">
-                        <button type="button" class="btn btn-primary edit-icon-btn" data-bs-toggle="modal" data-bs-target="#editPatientModal{{ patient.id }}" title="Edit Patient"><i class="far fa-edit"></i></button>
-                        <button type="button" class="btn btn-primary delete-icon-btn" data-bs-toggle="modal" data-bs-target="#deletePatientModal{{ patient.id }}" title="Delete Patient"><i class="fas fa-trash"></i></button>
+                        <button type="button" class="btn btn primary view-icon-btn" data-bs-toggle="modal" data-bs-target="#viewOrderModal{{ medOrder.id }}" title="viewOrder"><i class="fas fa-eye"></i></button>
+                        <button type="button" class="btn btn primary complete-order-btn" data-bs-toggle="modal" data-bs-target="#completeOrderModal{{ medOrder.id }}" title="completeOrder"><i class="fas fa-check"></i></button>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+
+        <!--Boostrap Paginator-->
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-end">
+                {% if medication_orders.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ medication_orders.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+
+                {% for i in page_range %}
+                    {% if i == medication_orders.number %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ i }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if medication_orders.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ medication_orders.next_page_number }}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ medication_orders.paginator.num_pages }}">Last</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!--View Order Modal-->
+        {% for medOrder in medication_orders %}
+        <div class="modal fade" id="viewOrderModal{{ medOrder.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel"><b>View Order Details</b></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="viewOrderForm">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <h6><b>Order Information</b></h6>
+
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="order_number" name="order_number" placeholder="order_number" value="{{ medOrder.order_number }}" disabled readonly>
+                                <label for="order_number">Order Number</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="name" class="form-control" id="fullname" name="fullname" placeholder="name" value="{{ medOrder.patient.fullname }}" disabled readonly>
+                                <label for="fullname">Name</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="nric_passport" name="nric_passport" placeholder="nric_passport" value="{{ medOrder.patient.nric_passport }}" disabled readonly>
+                                <label for="nric_passport">NRIC / Passport</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="age" name="age" placeholder="age" value="{{ medOrder.patient.age }}" disabled readonly>
+                                <label for="age">Age</label>
+                            </div>
+                            <div id="medication-container">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Medicine Name</th>
+                                            <th>Quantity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order_item in medOrder.orderitem_set.all %}
+                                        <tr>
+                                            <td>{{ order_item.medication.medication_name }}</td>
+                                            <td>{{ order_item.quantity }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary view-close-btn" data-bs-dismiss="modal"><b>CLOSE</b></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!--Complete Order Modal-->
+        {% for medOrder in medication_orders %}
+        <div class="modal fade" id="completeOrderModal{{ medOrder.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel"><b>Complete Order</b></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="completeOrderForm" method="POST" action="{% url 'complete_order' medOrder.id %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <b style="color: red;">Are you sure you want to complete this order?</b>
+                            <br><br>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="order_number" name="order_number" placeholder="order_number" value="{{ medOrder.order_number }}" disabled readonly>
+                                <label for="order_number">Order Number</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="name" class="form-control" id="fullname" name="fullname" placeholder="name" value="{{ medOrder.patient.fullname }}" disabled readonly>
+                                <label for="fullname">Name</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="nric_passport" name="nric_passport" placeholder="nric_passport" value="{{ medOrder.patient.nric_passport }}" disabled readonly>
+                                <label for="nric_passport">NRIC / Passport</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="age" name="age" placeholder="age" value="{{ medOrder.patient.age }}" disabled readonly>
+                                <label for="age">Age</label>
+                            </div>
+                            <div id="medication-container">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Medicine Name</th>
+                                            <th>Quantity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order_item in medOrder.orderitem_set.all %}
+                                        <tr>
+                                            <td>{{ order_item.medication.medication_name }}</td>
+                                            <td>{{ order_item.quantity }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary cancel-btn" data-bs-dismiss="modal"><b>CANCEL</b></button>
+                            <button type="submit" class="btn btn-primary add-btn"><b>CONFIRM</b></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+    </body>
+
 
         
     <script>
@@ -211,52 +335,6 @@
             });
         });
 
-        // To check allergy of patient with the properties of medication
-        $(document).ready(function(){
-            $('#warning-message').hide();
-
-            $('#medication').change(function(){
-                var selectedMedicationId = $(this).val();
-                var nric_passport = $('#nric_passport').val();
-                $.ajax({
-                    url:'/check_allergy/', 
-                    type: 'POST',
-                    data:{
-                        'medication_id': selectedMedicationId,
-                        'nric_passport': nric_passport,
-                    },
-                    success: function(response){
-                        if(response.has_allergy){
-                            displayWarningMessage('Warning: Patient has allergies for this medication!');
-                        } else{
-                            hideWarningMessage();
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        displayErrorMessage('Error: Unable to check allergies. Please try again later');
-                        console.error('Error:', error);
-                    }
-                });
-            });
-
-            function displayWarningMessage(message){
-                var warningMessageDiv = $('#warning-message');
-                warningMessageDiv.text(message);
-                warningMessageDiv.show();
-            }
-
-            function hideWarningMessage(){
-                var warningMessageDiv = $('#warning-message');
-                warningMessageDiv.hide();
-            }
-
-            function displayErrorMessage(message){
-                var warningMessageDiv = $('#warning-message');
-                warningMessageDiv.text(message);
-                warningMessageDiv.show();
-            }
-        });
-
         // Function to hide the success message after a delay
         function hideSuccessMessage() {
             var successMessage = document.querySelector(".alert-success");
@@ -274,6 +352,40 @@
             var newField = container.firstElementChild.cloneNode(true);
             container.appendChild(newField);
         }
+
+        function checkAllergy() {
+        var selectedMedication = document.getElementById("medication");
+        var medicationId = selectedMedication.value;
+        var nricPassport = document.getElementById("nric_passport").value;
+
+        console.log("Medication ID:", medicationId);
+        console.log("NRIC / Passport:", nricPassport);
+
+        // Make AJAX request to check allergy
+        $.ajax({
+            type: 'POST',
+            url: '{% url "check_allergy" %}',
+            data: {
+                'medication': medicationId,
+                'nric_passport': nricPassport,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                console.log("Response:", response);
+                if (response) {
+                    document.getElementById("warning-message").innerHTML = response;
+                    document.getElementById("warning-message").style.display = "block";
+                    document.getElementById("submit-btn").disabled = true;
+                } else {
+                    document.getElementById("warning-message").style.display = "none";
+                    //document.getElementById("submit-btn").disabled = false;
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX Error:", error);
+            }
+        });
+    }
 
     </script>
 </html>

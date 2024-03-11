@@ -22,6 +22,18 @@
             border-radius: 8px;
         }
 
+        .password-input-container{
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .toggle-password-icon {
+            cursor: pointer;
+            color: #777;
+            margin-left: -30px;
+        }
+
         button[type=submit]{
             width: 100%;
             height: 7%;
@@ -64,7 +76,10 @@
 
                 <div class="form-group">
                     <label for="password" class="form-label"><b>Password</b></label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                    <div class="password-input-container">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                    <span onclick="togglePasswordVisibility('password','toggle_password')" class="toggle-password-icon"><i id="toggle_password" class="fas fa-eye-slash"></i></span>
+                    </div>
                 </div>
 
                 <br><br>
@@ -89,5 +104,20 @@
         }
         // Call the hideSuccessMessage function when the page loads
         window.onload = hideSuccessMessage;
+
+        function togglePasswordVisibility(inputId, iconId) {
+                var input = document.getElementById(inputId);
+                var icon = document.getElementById(iconId);
+                
+                if (input.type === "password") {
+                    input.type = "text";
+                    icon.classList.remove("fa-eye-slash");
+                    icon.classList.add("fa-eye");
+                } else {
+                    input.type = "password";
+                    icon.classList.remove("fa-eye");
+                    icon.classList.add("fa-eye-slash");
+                }
+            }
     </script>
 </html>

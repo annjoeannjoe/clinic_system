@@ -1,0 +1,9 @@
+{
+    "name": "clinicsystem",
+    "version": "4.2",
+    "description": "Interview Project",
+    "author": "Chuah Ann Joe",
+    "scripts": {
+      "start": "py manage.py runserver"
+    }
+  }

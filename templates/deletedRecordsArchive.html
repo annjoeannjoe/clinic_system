@@ -10,6 +10,26 @@
             font-family: "Arial", sans-serif;
         }
 
+        .view-icon-btn{
+            display: inline-block;
+            color: #0f69bc !important;
+            text-decoration: none;
+            background-color: #ffffff !important;
+            border: #ffffff !important;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 50%; 
+            width: 40px; 
+            height: 40px;
+            padding: 0; 
+        }
+
+        .view-close-btn{
+            background-color: #1277d6 !important;
+            border: #1277d6 !important;
+            color: white;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
     </style>
 
     <body>
@@ -33,6 +53,7 @@
                     <th>NRIC / Passport</th>
                     <th>DOB</th>
                     <th>Age</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,10 +63,106 @@
                     <td>{{ patient.nric_passport }}</td>
                     <td>{{ patient.dob|date:"d-m-Y" }}</td>
                     <td>{{ patient.age }}</td>
+                    <td class="action-buttons">
+                        <button type="button" class="btn btn-primary view-icon-btn" data-bs-toggle="modal" data-bs-target="#viewPatientModal{{ patient.id }}" title="view Patient"><i class="far fa-eye"></i></button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+
+        <!--Boosterap paginator-->
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-end">
+                {% if patients.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ patients.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+
+                {% for i in page_range %}
+                    {% if i == patients.number %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ i }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if patients.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ patients.next_page }}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ patients.paginator.num_pages }}">Last</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!--View Details Modal-->
+        {% for patient in patients %}
+        <div class="modal fade" id="viewPatientModal{{ patient.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel"><b>View Patient Details</b></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="viewPatientForm">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <h6><b>Patient Details</b></h6>
+
+                            <div class="form-floating mb-3">
+                                <input type="name" class="form-control" id="fullname" name="fullname" placeholder="name" value="{{ patient.fullname }}" disabled readonly>
+                                <label for="fullname">Name</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="nric_passport" name="nric_passport" placeholder="nric_passport" value="{{ patient.nric_passport }}" readonly disabled>
+                                <label for="nric_passport">NRIC / Passport</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="date" class="form-control" id="dobInput" name="dobInput" placeholder="date" value="{{ patient.dob|date:'Y-m-d' }}" readonly disabled>
+                                <label for="dobInput">Date of Birth</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="ageInput" name="ageInput" placeholder="age" value="{{ patient.age }}" readonly disabled>
+                                <label for="ageInput">Age</label>
+                            </div>
+
+                            <div id="allergy-container">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Allergy Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for allergy in patient.allergies.all %}
+                                        <tr>
+                                            <td>{{ allergy.property_name }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary view-close-btn" data-bs-dismiss="modal"><b>CLOSE</b></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
 
     </body>
 
