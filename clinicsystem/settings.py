@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
-    'clinicsystem-project-7b1efc80f077.herokuapp.com'
+    'afternoon-everglades-85816-99731144b90f.herokuapp.com'
 ]
 
 
@@ -127,4 +127,4 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_TRUSTED_ORIGINS = ['https://clinicsystem-project-7b1efc80f077.herokuapp.com/']
+CSRF_TRUSTED_ORIGINS = ['https://afternoon-everglades-85816-99731144b90f.herokuapp.com/']
