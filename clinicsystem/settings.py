@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
-    'afternoon-everglades-85816-99731144b90f.herokuapp.com'
+    'afternoon-everglades-85816-99731144b90f.herokuapp.com',
 ]
 
 
