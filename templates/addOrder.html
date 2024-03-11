@@ -47,9 +47,7 @@
             border: none;
             color: #c90303;
             cursor: pointer;
-            padding-left: 15px;
-            margin-top: -10px;
-            margin-bottom: 15px;
+            padding-left: 15px;            
         }
 
         .right-align{
@@ -95,13 +93,13 @@
                     </div>
 
                     <div id="medication-container">
-                        <div class="row">
+                        <div class="medication-field row">
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <select id="medication" name="medication" class="form-control" onchange="checkAllergy()">
+                                    <select class="medication form-control" onchange="checkAllergy()">
                                         <option value="" selected disabled>Select medication</option>
                                         {% for medication in medications %}
-                                        <option value="{{ medication.id }}" data-properties="{% for prop in medication.properties.all %}{{ prop.property_name }}{% if not forloop.last %},{% endif %}{% endfor %}">{{ medication.medication_name }}</option>
+                                            <option value="{{ medication.id }}" data-properties="{% for prop in medication.properties.all %}{{ prop.property_name }}{% if not forloop.last %},{% endif %}{% endfor %}">{{ medication.medication_name }}</option>
                                         {% endfor %}
                                     </select>
                                     <label for="medication">Medication</label>
@@ -109,13 +107,14 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <input type="number" class="form-control quantity" id="quantity" name="quantity" placeholder="Quantity" min="1" >
+                                    <input type="number" class="form-control quantity" placeholder="Quantity" min="1">
                                     <label>Quantity</label>
                                 </div>
                             </div>
+                            <div class="warning-message" style="display: none; color: red;"></div>
                         </div>
-                        <div id="warning-message" style="display: none; color: red;"></div>
                     </div>
+                    
                     
                     <button type="button" class="btn btn-primary add-medication-btn" onclick="addMedicationField()">Add</button>
                 </div>
@@ -176,18 +175,34 @@
                 container.removeChild(newField);
             };
             newField.appendChild(deleteButton);
+            
+            // Clear medication selection and quantity
+            newField.querySelector('.quantity').value = '';
+
+            var warningMessageDiv = document.createElement("div");
+            var uniqueId = "warning-message-" + Date.now(); // Generate unique ID
+            warningMessageDiv.id = uniqueId;
+            warningMessageDiv.style.display = "none";
+            warningMessageDiv.style.color = "red";
+            newField.appendChild(warningMessageDiv);
+
             container.appendChild(newField);
             
-            newField.querySelector('.quantity').value = '';
+            newField.querySelector('select').onchange = function() {
+                // Call checkAllergy function with the unique ID of the warning message
+                checkAllergy(uniqueId);
+            };
         }
 
+
         function checkAllergy() {
-        var selectedMedication = document.getElementById("medication");
+    var medicationFields = document.querySelectorAll('.medication-field');
+    
+    medicationFields.forEach(function(field) {
+        var selectedMedication = field.querySelector('.medication');
         var medicationId = selectedMedication.value;
         var nricPassport = document.getElementById("nric_passport").value;
-
-        console.log("Medication ID:", medicationId);
-        console.log("NRIC / Passport:", nricPassport);
+        var warningMessageDiv = field.querySelector('.warning-message');
 
         // Make AJAX request to check allergy
         $.ajax({
@@ -199,21 +214,23 @@
                 'csrfmiddlewaretoken': '{{ csrf_token }}'
             },
             success: function(response) {
-    console.log("Response:", response);
-    if (response.allergic === false) {
-        // Patient is not allergic, hide the warning message
-        document.getElementById("warning-message").style.display = "none";
-    } else {
-        // Patient is allergic, display the warning message
-        document.getElementById("warning-message").innerHTML = response.message; // Assuming the response contains a message field
-        document.getElementById("warning-message").style.display = "block";
-    }
-},
+                if (response.allergic === false) {
+                    // Patient is not allergic, hide the warning message
+                    warningMessageDiv.innerHTML = "";
+                    warningMessageDiv.style.display = "none";
+                } else if(response.allergic === true) {
+                    // Patient is allergic, display the warning message
+                    warningMessageDiv.innerHTML = response.message; // Assuming the response contains a message field
+                    warningMessageDiv.style.display = "block";
+                }
+            },
             error: function(xhr, status, error) {
                 console.error("AJAX Error:", error);
             }
         });
-    }
+    });
+}
+
 
     window.onload = function() {
         var orderNumberInput = document.getElementById("order_number");
