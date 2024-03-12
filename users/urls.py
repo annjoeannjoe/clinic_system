@@ -8,7 +8,6 @@ urlpatterns = [
     path('check_duplicate_nric/', views.check_duplicate_nric, name="check_duplicate_nric"),
     path('addPatient/', views.addPatient, name="addPatient"),
     path('editPatient/<int:pk>/', views.editPatient, name="editPatient"),
-    path('deletePatient/<int:pk>/', views.deletePatient, name="deletePatient"),
     path('deletedRecordsArchive/', views.deletedRecordsArchive, name="deletedRecordsArchive"),
     path('medicationOrder/', views.medicationOrder, name="medicationOrder"),
     path('fetch_patient_name/', views.fetch_patient_name, name="fetch_patient_name"),
