@@ -16,6 +16,5 @@ urlpatterns = [
     path('addOrder/', views.addOrder, name="addOrder"),
     path('complete_order/<int:pk>/', views.complete_order, name="complete_order"),
     path('changePassword/', views.changePassword, name="changePassword"),
-    path('search_patients', views.search_patients, name="search_patients"),
     path('logout/', views.logout, name="logout")
 ]
