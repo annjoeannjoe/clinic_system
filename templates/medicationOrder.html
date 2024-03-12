@@ -66,6 +66,7 @@
             padding: 0;
             margin-left: 10px;
         }
+
         .add-allergy-btn{
             background-color: #008d6c !important;
             border: #008d6c !important;
@@ -113,9 +114,8 @@
         .header-wrapper i{
             margin-left: 4px;
         }
-
-
     </style>
+
     <body>
         <br>
         <h4><center><b>Manage Order</b></center></h4>
@@ -143,6 +143,7 @@
         </div>
         <br>
 
+        <!--Add Order button-->
         <div class="row justify-content-end">
             <div class="col-auto">
                 <button type="button" class="btn btn-primary mb-3">
@@ -353,11 +354,8 @@
             </div>
         </div>
         {% endfor %}
-        
     </body>
 
-
-        
     <script>
 
         function resetOrderForm(){
@@ -391,9 +389,9 @@
                 }, 1500); 
             }
         }
-        // Call the hideSuccessMessage function when the page loads
         window.onload = hideSuccessMessage;
 
+        // Add new medication field
         function addMedicationField(){
             var container = document.getElementById("medication-container");
             var newField = container.firstElementChild.cloneNode(true);
@@ -476,7 +474,7 @@
         }
 
         // Search NRIC
-         document.getElementById("searchButton").addEventListener("click", function(){
+        document.getElementById("searchButton").addEventListener("click", function(){
             var searchQuery = document.getElementById("searchInput").value.trim().toLowerCase();
             var patientRows = document.querySelectorAll("tbody tr");
 

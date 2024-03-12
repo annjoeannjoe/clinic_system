@@ -143,7 +143,7 @@
         </div>
         <br>
 
-
+        <!--Add Patient Button-->
         <div class="row justify-content-end">
             <div class="col-auto">
                 <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addPatientModal" onclick="resetPatientForm()">
@@ -232,7 +232,6 @@
                     <td>{{ patient.age }}</td>
                     <td class="action-buttons">
                         <button type="button" class="btn btn-primary edit-icon-btn" data-bs-toggle="modal" data-bs-target="#editPatientModal{{ patient.id }}" title="Edit Patient"><i class="far fa-edit"></i></button>
-                        <button type="button" class="btn btn-primary delete-icon-btn" data-bs-toggle="modal" data-bs-target="#deletePatientModal{{ patient.id }}" title="Delete Patient"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -331,30 +330,6 @@
             </div>
         </div>
         {% endfor %}
-
-        <!--Delete Patient Modal-->
-        {% for patient in patients %}
-        <div class="modal fade" id="deletePatientModal{{ patient.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel"><b>Delete Patient</b></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form id="patientForm" method="POST" action="{% url 'deletePatient' pk=patient.id %}">
-                        {% csrf_token %}
-                        <div class="modal-body">
-                            Are you sure want to delete patient {{ patient.fullname }}?
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary delete-cancel-btn" data-bs-dismiss="modal"><b>CANCEL</b></button>
-                            <button type="submit" class="btn btn-primary delete-btn"><b>DELETE</b></a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
     </body>
 
     <script>
@@ -379,7 +354,6 @@
             document.getElementById("patientForm").reset();
         }
 
-        // Function to hide the success message after a delay
         function hideSuccessMessage() {
             var successMessage = document.querySelector(".alert-success");
             if (successMessage) {
@@ -388,7 +362,6 @@
                 }, 1500); 
             }
         }
-        // Call the hideSuccessMessage function when the page loads
         window.onload = hideSuccessMessage;
 
          // Search NRIC
@@ -405,7 +378,6 @@
                 }
             });
         });
-
 
         function addAllergyField(){
             var container = document.getElementById("allergy-container");
@@ -453,7 +425,6 @@
             selectElement.appendChild(option);
             {% endfor %}
 
-
             newField.appendChild(selectElement);
 
             var labelElement = document.createElement('label');
@@ -476,7 +447,7 @@
             container.appendChild(newField);
         }
 
-        // check duplication of nric_passport
+        // Check duplication of nric_passport
         document.getElementById("nric_passport").addEventListener("input", function(){
             var nric_passport = this.value;
             checkDuplicateNRIC(nric_passport);

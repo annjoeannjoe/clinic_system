@@ -12,31 +12,26 @@ from django.core.paginator import Paginator
 
 # Create your views here.
 
-
-
-def users(request):
-    return HttpResponse("Hello World")
-
 def login(request):
-        if request.method == 'POST':
-            email = request.POST['email'].lower()
-            password = request.POST['password']
+    if request.method == 'POST':
+        email = request.POST['email'].lower()
+        password = request.POST['password']
 
-            try:
-                user = User.objects.get(email=email)
+        try:
+            user = User.objects.get(email=email)
 
-            except User.DoesNotExist:
-                messages.error(request,"Account with this email does not exist.")
-                return render(request, 'login.html')
+        except User.DoesNotExist:
+            messages.error(request,"Account with this email does not exist.")
+            return render(request, 'login.html')
 
-            if check_password(password, user.password):
-                auth.login(request,user)
-                return redirect('homepage')
-            else:
-                messages.error(request, 'Incorrect password. Please try again.')
-                return render(request, 'login.html')
-        
-        return render(request,'login.html')
+        if check_password(password, user.password):
+            auth.login(request,user)
+            return redirect('homepage')
+        else:
+            messages.error(request, 'Incorrect password. Please try again.')
+            return render(request, 'login.html')
+    
+    return render(request,'login.html')
 
 
 def homepage(request):
@@ -60,6 +55,7 @@ def homepage(request):
 
     return render(request,'homepage.html', context)
 
+
 def check_duplicate_nric(request):
     if request.method == "POST":
         nric_passport = request.POST.get('nric_passport', None)
@@ -67,6 +63,7 @@ def check_duplicate_nric(request):
             if Patient.objects.filter(nric_passport=nric_passport).exists():
                 return JsonResponse({'exists': True})
     return JsonResponse({'exists': False})
+
 
 def addPatient(request):
     if request.method == "POST":
@@ -80,11 +77,6 @@ def addPatient(request):
         dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
 
         if fullname and nric_passport and dob and age:
-            
-            # Perform age calculation
-            #today = date.today()
-            #calculated_age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-            
             # Convert age to an integer
             age = int(age)
             
@@ -104,6 +96,7 @@ def addPatient(request):
             messages.success(request, 'The new patient has been successfully added.')
             return redirect('homepage')
     return render(request, "homepage.html")
+
 
 def editPatient(request,pk):
     patient = get_object_or_404(Patient,pk=pk)
@@ -128,13 +121,6 @@ def editPatient(request,pk):
     
     return render(request, 'homepage.html')
 
-def deletePatient(request,pk):
-    patient = get_object_or_404(Patient, id=pk)
-
-    patient.soft_delete()
-
-    return redirect('homepage')
-
 
 def deletedRecordsArchive(request):
     patients = Patient.objects.filter(deleted=True).order_by('created_at')
@@ -155,6 +141,7 @@ def deletedRecordsArchive(request):
     }
 
     return render(request,'deletedRecordsArchive.html',context)
+
 
 def medicationOrder(request):
     patients = Patient.objects.filter(deleted=False).order_by('created_at')
@@ -179,6 +166,7 @@ def medicationOrder(request):
     }
     return render (request, 'medicationOrder.html', context)
 
+
 def fetch_patient_name(request):
     if request.method == 'GET':
         nric_passport = request.GET.get('nric_passport')
@@ -190,6 +178,7 @@ def fetch_patient_name(request):
             return JsonResponse({'error': 'Patient not found'}, status=404)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+
 
 def addOrder(request):
     medications = Medication.objects.all()
@@ -237,6 +226,7 @@ def addOrder(request):
 
     return render(request, 'addOrder.html', context)
 
+
 def check_allergy(request):
     if request.method == 'POST':
         medication_id = request.POST.get('medication')
@@ -247,9 +237,9 @@ def check_allergy(request):
             patient = Patient.objects.get(nric_passport=nric_passport)
             medication = Medication.objects.get(pk=medication_id)
         except Patient.DoesNotExist:
-            return HttpResponse("Patient not found!")  # Return an error message if patient not found
+            return HttpResponse("Patient not found!")  
         except Medication.DoesNotExist:
-            return HttpResponse("Medication not found!")  # Return an error message if medication not found
+            return HttpResponse("Medication not found!")  
 
         # Check for allergies
         patient_allergies = patient.allergies.all()
@@ -263,6 +253,7 @@ def check_allergy(request):
     
     return render (request,'medicationOrder.html')
 
+
 def complete_order(request,pk):
     order_number = get_object_or_404(MedicationOrder, id=pk)
 
@@ -273,6 +264,7 @@ def complete_order(request,pk):
         messages.success(request,'The order has been completed successfully!')
         return redirect('medicationOrder')
     return render(request, 'medicationOrder.html')
+
 
 def changePassword(request):
     if request.method == "POST":

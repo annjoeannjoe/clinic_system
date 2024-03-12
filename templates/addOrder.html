@@ -53,11 +53,8 @@
         .right-align{
             float: right;
         }
-
-
-
-
     </style>
+
     <body>
         <br>
         <h4><center><b>Order Page</b></center></h4>
@@ -76,11 +73,6 @@
                 {% csrf_token %}
                 <div class="modal-body">
                     <h6><b>Order Information</b></h6>
-
-                    <!--<div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="order_number" name="order_number" placeholder="order_number" value="{{ next_order_number }}" required>
-                        <label for="order_number">Order Number</label>
-                    </div>-->
 
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="nric_passport" name="nric_passport" placeholder="nric_passport" required>
@@ -114,18 +106,15 @@
                             <div class="warning-message" style="display: none; color: red;"></div>
                         </div>
                     </div>
-                    
-                    
                     <button type="button" class="btn btn-primary add-medication-btn" onclick="addMedicationField()">Add</button>
                 </div>
+
                 <br><br>
                 <button type="submit" class="btn btn-primary submit-btn right-align" id="submit-btn" ><b>SUBMIT</b></button>
                 
             </form>
     </body>
 
-
-        
     <script>
 
         function resetOrderForm(){
@@ -150,7 +139,6 @@
             });
         });
 
-        // Function to hide the success message after a delay
         function hideSuccessMessage() {
             var successMessage = document.querySelector(".alert-success");
             if (successMessage) {
@@ -159,7 +147,6 @@
                 }, 1500); 
             }
         }
-        // Call the hideSuccessMessage function when the page loads
         window.onload = hideSuccessMessage;
 
         function addMedicationField(){
@@ -194,49 +181,43 @@
             };
         }
 
-
         function checkAllergy() {
-    var medicationFields = document.querySelectorAll('.medication-field');
-    
-    medicationFields.forEach(function(field) {
-        var selectedMedication = field.querySelector('.medication');
-        var medicationId = selectedMedication.value;
-        var nricPassport = document.getElementById("nric_passport").value;
-        var warningMessageDiv = field.querySelector('.warning-message');
+            var medicationFields = document.querySelectorAll('.medication-field');
+            
+            medicationFields.forEach(function(field) {
+                var selectedMedication = field.querySelector('.medication');
+                var medicationId = selectedMedication.value;
+                var nricPassport = document.getElementById("nric_passport").value;
+                var warningMessageDiv = field.querySelector('.warning-message');
 
-        // Make AJAX request to check allergy
-        $.ajax({
-            type: 'POST',
-            url: '{% url "check_allergy" %}',
-            data: {
-                'medication': medicationId,
-                'nric_passport': nricPassport,
-                'csrfmiddlewaretoken': '{{ csrf_token }}'
-            },
-            success: function(response) {
-                if (response.allergic === false) {
-                    // Patient is not allergic, hide the warning message
-                    warningMessageDiv.innerHTML = "";
-                    warningMessageDiv.style.display = "none";
-                } else if(response.allergic === true) {
-                    // Patient is allergic, display the warning message
-                    warningMessageDiv.innerHTML = response.message; // Assuming the response contains a message field
-                    warningMessageDiv.style.display = "block";
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error("AJAX Error:", error);
-            }
-        });
-    });
-}
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "check_allergy" %}',
+                    data: {
+                        'medication': medicationId,
+                        'nric_passport': nricPassport,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.allergic === false) {
+                            // If patient is not allergic then hide the warning message
+                            warningMessageDiv.innerHTML = "";
+                            warningMessageDiv.style.display = "none";
+                        } else if(response.allergic === true) {
+                            // If patient is allergic then display the warning message
+                            warningMessageDiv.innerHTML = response.message; 
+                            warningMessageDiv.style.display = "block";
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error:", error);
+                    }
+                });
+            });
+        }
 
 
-    window.onload = function() {
-        var orderNumberInput = document.getElementById("order_number");
-        var nextOrderNumber = "{{ next_order_number }}"; // Fetch the value from the Django template variable
-        orderNumberInput.value = nextOrderNumber;
-    };
+       
 
     </script>
 </html>
