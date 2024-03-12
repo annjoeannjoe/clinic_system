@@ -113,6 +113,20 @@
             {% endfor %}
         {% endif %}
 
+        <!--Search bar-->
+        <div class="row justify-content-end">
+            <div class="col-auto">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Search by NRIC/Passport" id="searchInput">
+                    <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <br>
+
+
         <div class="row justify-content-end">
             <div class="col-auto">
                 <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addPatientModal" onclick="resetPatientForm()">
@@ -352,6 +366,25 @@
         }
         // Call the hideSuccessMessage function when the page loads
         window.onload = hideSuccessMessage;
+
+         // Search NRIC
+         document.getElementById("searchButton").addEventListener("click", function(){
+            var searchQuery = document.getElementById("searchInput").value.trim().toLowerCase();
+            var patientRows = document.querySelectorAll("tbody tr");
+
+            patientRows.forEach(function(row){
+                var nric = row.cells[1].textContent.trim().toLowerCase();
+                if (nric.includes(searchQuery)){
+                    row.style.display = "";
+                } else{
+                    row.style.display = "none";
+                }
+            });
+        });
+
+
+
+
 
         function addAllergyField(){
             var container = document.getElementById("allergy-container");

@@ -237,9 +237,6 @@ def addOrder(request):
 
     return render(request, 'addOrder.html', context)
 
-
-
-
 def check_allergy(request):
     if request.method == 'POST':
         medication_id = request.POST.get('medication')
@@ -298,3 +295,17 @@ def logout(request):
     return redirect ('login')
             
        
+def search_patients(request):
+    if request.method == 'GET':
+        search_query = request.GET.get('search_query', None)
+        if search_query:
+            # Filter patients based on the search query
+            patients = Patient.objects.filter(nric_passport__icontains=search_query)
+        else:
+            # If no search query provided, return all patients
+            patients = Patient.objects.all()
+
+        # Render the HTML markup for the table rows with the search results
+        return render(request, 'patients_table_rows.html', {'patients': patients})
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
