@@ -88,7 +88,7 @@
                         <div class="medication-field row">
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <select class="medication form-control" onchange="checkAllergy()">
+                                    <select class="medication form-control" onchange="checkAllergy()" name="medication">
                                         <option value="" selected disabled>Select medication</option>
                                         {% for medication in medications %}
                                             <option value="{{ medication.id }}" data-properties="{% for prop in medication.properties.all %}{{ prop.property_name }}{% if not forloop.last %},{% endif %}{% endfor %}">{{ medication.medication_name }}</option>
@@ -99,7 +99,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <input type="number" class="form-control quantity" placeholder="Quantity" min="1">
+                                    <input type="number" class="form-control quantity" placeholder="Quantity" min="1" name="quantity">
                                     <label>Quantity</label>
                                 </div>
                             </div>
